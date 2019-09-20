@@ -12,6 +12,56 @@ import { create } from '../../helpers/http';
 import RepositoryModel from '../../models/repository';
 import { displayNumber, getStatus } from '../helpers';
 
+const createAlert = async props => {
+  const {
+    updateStateParams,
+    updateData,
+    testDetails,
+    dataPointDetails,
+    prevPushId,
+    flotIndex,
+  } = props;
+
+  let data;
+  let failureStatus;
+
+  ({ data, failureStatus } = await create(getApiUrl(endpoints.alertSummary), {
+    repository_id: testDetails.projectId,
+    framework_id: testDetails.framework_id,
+    push_id: dataPointDetails.pushId,
+    prev_push_id: prevPushId,
+  }));
+
+  if (failureStatus) {
+    return updateStateParams({
+      errorMessages: [
+        `Failed to create an alert summary for push ${dataPointDetails.push_id}: ${data}`,
+      ],
+    });
+  }
+
+  const newAlertSummaryId = data.alert_summary_id;
+  ({ data, failureStatus } = await create(getApiUrl(endpoints.alert), {
+    summary_id: newAlertSummaryId,
+    signature_id: testDetails.signature_id,
+  }));
+
+  if (failureStatus) {
+    updateStateParams({
+      errorMessages: [
+        `Failed to create an alert for alert summary ${newAlertSummaryId}: ${data}`,
+      ],
+    });
+  }
+
+  updateData(
+    testDetails.signature_id,
+    testDetails.projectId,
+    newAlertSummaryId,
+    flotIndex,
+  );
+};
+
 const GraphTooltip = ({
   dataPoint,
   testData,
@@ -19,6 +69,7 @@ const GraphTooltip = ({
   updateData,
   projects,
   updateStateParams,
+  createAlert,
 }) => {
   // we either have partial information provided by the selected
   // query parameter or the full dataPoint object provided from the
@@ -87,47 +138,6 @@ const GraphTooltip = ({
     selectedJob: dataPointDetails.jobId,
     group_state: 'expanded',
   });
-
-  const createAlert = async () => {
-    let data;
-    let failureStatus;
-
-    ({ data, failureStatus } = await create(getApiUrl(endpoints.alertSummary), {
-      repository_id: testDetails.projectId,
-      framework_id: testDetails.framework_id,
-      push_id: dataPointDetails.pushId,
-      prev_push_id: prevPushId,
-    }));
-
-    if (failureStatus) {
-      return updateStateParams({
-        errorMessages: [
-          `Failed to create an alert summary for push ${dataPointDetails.push_id}: ${data}`,
-        ],
-      });
-    }
-
-    const newAlertSummaryId = data.alert_summary_id;
-    ({ data, failureStatus } = await create(getApiUrl(endpoints.alert), {
-      summary_id: newAlertSummaryId,
-      signature_id: testDetails.signature_id,
-    }));
-
-    if (failureStatus) {
-      updateStateParams({
-        errorMessages: [
-          `Failed to create an alert for alert summary ${newAlertSummaryId}: ${data}`,
-        ],
-      });
-    }
-
-    updateData(
-      testDetails.signature_id,
-      testDetails.projectId,
-      newAlertSummaryId,
-      flotIndex,
-    );
-  };
 
   return (
     <div className="body">
@@ -215,7 +225,21 @@ const GraphTooltip = ({
         {!dataPointDetails.alertSummary && prevPushId && (
           <p className="pt-2">
             {user.isStaff ? (
-              <Button color="info" outline size="sm" onClick={createAlert}>
+              <Button
+                color="info"
+                outline
+                size="sm"
+                onClick={() =>
+                  createAlert({
+                    updateStateParams,
+                    updateData,
+                    testDetails,
+                    dataPointDetails,
+                    prevPushId,
+                    flotIndex,
+                  })
+                }
+              >
                 create alert
               </Button>
             ) : (
@@ -240,10 +264,12 @@ GraphTooltip.propTypes = {
   user: PropTypes.shape({}).isRequired,
   updateData: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})),
+  createAlert: PropTypes.func,
 };
 
 GraphTooltip.defaultProps = {
   projects: [],
+  createAlert,
 };
 
 export default GraphTooltip;

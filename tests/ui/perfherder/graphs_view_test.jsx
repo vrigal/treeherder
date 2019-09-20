@@ -5,19 +5,57 @@ import {
   fireEvent,
   waitForElement,
 } from '@testing-library/react';
+// import { fetchMock } from 'fetch-mock';
 
 import GraphsViewControls from '../../../ui/perfherder/graphs/GraphsViewControls';
 import repos from '../mock/repositories';
 import testData from '../mock/performance_summary.json';
 import seriesData from '../mock/performance_signature_formatted.json';
 import seriesData2 from '../mock/performance_signature_formatted2.json';
+import GraphTooltip from '../../../ui/perfherder/graphs/GraphTooltip';
+// import GraphsContainer from '../../../ui/perfherder/graphs/GraphsContainer';
+import { graphColors, endpoints } from '../../../ui/perfherder/constants';
+// import { getApiUrl, createQueryParams } from '../../../ui/helpers/url';
 
-const frameworks = [
-  { id: 1, name: 'talos' },
-  { id: 2, name: 'build_metrics' },
-];
+const frameworks = [{ id: 1, name: 'talos' }, { id: 2, name: 'build_metrics' }];
 const platforms = ['linux64', 'windows10-64', 'windows7-32'];
 
+let color;
+const graphData = testData.map(series => {
+  color = graphColors.pop();
+  return {
+    color: color || ['border-secondary', ''],
+    visible: Boolean(color),
+    name: series.name,
+    signature_id: series.signature_id,
+    signatureHash: series.signature_hash,
+    framework_id: series.framework_id,
+    platform: series.platform,
+    repository_name: series.repository_name,
+    projectId: series.repository_id,
+    id: `${series.repository_name} ${series.name}`,
+    data: series.data.map(dataPoint => ({
+      x: new Date(dataPoint.push_timestamp),
+      y: dataPoint.value,
+      z: color ? color[1] : '',
+      revision: dataPoint.revision,
+      alertSummary: null,
+      signature_id: series.signature_id,
+      pushId: dataPoint.push_id,
+      jobId: dataPoint.job_id,
+      // only used for test purposes
+      id: dataPoint.push_id,
+    })),
+    lowerIsBetter: series.lower_is_better,
+    resultSetData: series.data.map(dataPoint => dataPoint.push_id),
+  };
+});
+
+const updatedGraphData = graphData[0].data.map(point => {
+  if (point.pushId === testData[0].data[1].push_id) {
+    point.alertSummary = 
+  };
+const updatedPush
 const updates = {
   filteredData: [],
   loading: false,
@@ -43,7 +81,6 @@ const graphsViewControls = () =>
   render(
     <GraphsViewControls
       updateStateParams={() => {}}
-      graphs={false}
       highlightAlerts={false}
       highlightedRevisions={['', '']}
       updateTimeRange={() => {}}
@@ -60,9 +97,61 @@ const graphsViewControls = () =>
       getSeriesData={mockGetSeriesData}
       showModal={Boolean(mockShowModal)}
       toggle={mockShowModal}
+      user={{ name: 'test user', isStaff: true }}
+      zoom={{}}
+      selectedDataPoint={{}}
+      visibilityChanged={false}
+      updateData={() => {}}
     />,
   );
 
+  const mockCreateAlert = jest
+  .fn()
+  .mockResolvedValueOnce(updates)
+  // .mockResolvedValueOnce(updates2)
+  // .mockResolvedValue(updates);
+
+// &selected=1647494,530261,422.104793816999,229.3252895391439
+const graphTooltip = () =>
+  render(
+    <GraphTooltip
+      dataPoint={{
+        signature_id: 1647494,
+        pushId: 530261,
+        x: 422.104793816999,
+        y: 229.3252895391439,
+      }}
+      testData={graphData}
+      user={{ name: 'test user', isStaff: true }}
+      updateData={() => {}}
+      projects={repos}
+      createAlert={mockCreateAlert}
+    />,
+  );
+
+// const graphsContainer = () =>
+//   render(
+//     <GraphsContainer
+//       updateStateParams={() => {}}
+//       highlightAlerts={false}
+//       highlightedRevisions={['', '']}
+//       hasNoData
+//       frameworks={frameworks}
+//       projects={repos}
+//       timeRange={{ value: 172800, text: 'Last two days' }}
+//       options={{}}
+//       getTestData={() => {}}
+//       testData={graphData}
+//       getInitialData={() => ({
+//         platforms,
+//       })}
+//       user={{ name: 'test user', isStaff: true }}
+//       zoom={{}}
+//       selectedDataPoint={{}}
+//       visibilityChanged={false}
+//       updateData={() => {}}
+//     />,
+//   );
 afterEach(cleanup);
 
 test('Changing the platform dropdown in the Test Data Model displays expected tests', async () => {
@@ -121,4 +210,13 @@ test('Selecting a test in the Test Data Modal adds it to Selected Tests section;
   fireEvent.click(fullTestToSelect);
   expect(mockShowModal.mock.calls).toHaveLength(1);
   expect(selectedTests).not.toContain(fullTestToSelect);
+});
+
+test('Creating an alert via the tooltip is successful', async () => {
+  const { getByText, getByTestId } = graphTooltip();
+
+  const createAlert = await waitForElement(() => getByText('create alert'));
+
+  fireEvent.click(createAlert);
+
 });
