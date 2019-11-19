@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import { displayNumber, formatNumber } from '../helpers';
+import { displayNumber, formatNumber, onPermalinkClick } from '../helpers';
 import { compareTableText } from '../constants';
 import ProgressBar from '../ProgressBar';
 import { hashFunction } from '../../helpers/utils';
@@ -91,8 +91,10 @@ export default class CompareTable extends React.PureComponent {
       user,
       hasSubtests,
       isBaseAggregate,
-      onPermalinkClick,
+      location,
+      history
     } = this.props;
+
     return (
       <Table
         id={this.getHashBasedId(testName)}
@@ -105,12 +107,12 @@ export default class CompareTable extends React.PureComponent {
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
               <span>{testName}</span>
-              {onPermalinkClick && (
+              {location && (
                 <Button
                   className="permalink p-0 ml-1"
                   color="link"
                   onClick={() =>
-                    onPermalinkClick(this.getHashBasedId(testName))
+                    onPermalinkClick(this.getHashBasedId(testName), location, history)
                   }
                   title="Permalink to this test table"
                 >
@@ -154,7 +156,7 @@ export default class CompareTable extends React.PureComponent {
               <th className="text-left font-weight-normal pl-1">
                 {rowLevelResults.name}
                 <span className="result-links">
-                  {onPermalinkClick && (
+                  {location && (
                     <span>
                       <Button
                         className="permalink p-0 ml-1"
@@ -162,6 +164,7 @@ export default class CompareTable extends React.PureComponent {
                         onClick={() =>
                           onPermalinkClick(
                             this.getHashBasedId(testName, rowLevelResults.name),
+                            location, history
                           )
                         }
                         title="Permalink to this test"
@@ -300,7 +303,7 @@ CompareTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})),
   testName: PropTypes.string.isRequired,
   hashFunction: PropTypes.func,
-  onPermalinkClick: PropTypes.func,
+  location: PropTypes.shape({}),
   getJob: PropTypes.func,
   retriggerJob: PropTypes.func,
 };
@@ -308,7 +311,7 @@ CompareTable.propTypes = {
 CompareTable.defaultProps = {
   data: null,
   hashFunction,
-  onPermalinkClick: undefined,
+  location: undefined,
   getJob: JobModel.get,
   retriggerJob: JobModel.retrigger,
 };

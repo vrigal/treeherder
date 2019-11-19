@@ -113,8 +113,9 @@ export default class CompareTableControls extends React.Component {
       isBaseAggregate,
       notify,
       hasSubtests,
-      onPermalinkClick,
       projects,
+      location,
+      history
     } = this.props;
 
     const {
@@ -170,12 +171,13 @@ export default class CompareTableControls extends React.Component {
               key={testName}
               data={data}
               testName={testName}
-              onPermalinkClick={onPermalinkClick}
               user={user}
               isBaseAggregate={isBaseAggregate}
               notify={notify}
               hasSubtests={hasSubtests}
               projects={projects}
+              location={location}
+              history={history}
             />
           ))
         ) : (
@@ -204,7 +206,6 @@ CompareTableControls.propTypes = {
     PropTypes.shape({}),
     PropTypes.bool,
   ]),
-  onPermalinkClick: PropTypes.func,
 };
 
 CompareTableControls.defaultProps = {
@@ -217,5 +218,4 @@ CompareTableControls.defaultProps = {
     showOnlyNoise: undefined,
   },
   showTestsWithNoise: null,
-  onPermalinkClick: undefined,
 };
