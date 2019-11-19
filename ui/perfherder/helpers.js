@@ -3,6 +3,7 @@ import sortBy from 'lodash/sortBy';
 import queryString from 'query-string';
 
 import { getApiUrl } from '../helpers/url';
+import { scrollToLine } from '../helpers/utils';
 import { update, processResponse } from '../helpers/http';
 import PerfSeriesModel, {
   getSeriesName,
@@ -627,5 +628,11 @@ export const getSeriesData = async (
   return updates;
 };
 
-export const onPermalinkClick = (hashBasedValue, location, history) =>
+export const onPermalinkClick = function onPermalinkClick(
+  hashBasedValue,
+  location,
+  history,
+) {
   history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
+  scrollToLine(`#${hashBasedValue}`, 100);
+};

@@ -226,15 +226,12 @@ class CompareView extends React.PureComponent {
     return updates;
   };
 
-  getHashFragment = () => this.props.location.hash;
-
   render() {
     return (
       <CompareTableView
         {...this.props}
         getQueryParams={this.getQueryParams}
         getDisplayResults={this.getDisplayResults}
-        hashFragment={this.props.location.hash}
         filterByFramework
       />
     );

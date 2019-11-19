@@ -17,7 +17,7 @@ export const hashFunction = someString => {
 
 export const scrollToLine = (selector, time, iteration = 0) => {
   const line = document.querySelector(selector);
-
+  console.log(line);
   if (line !== null) {
     line.scrollIntoView(true);
     return;

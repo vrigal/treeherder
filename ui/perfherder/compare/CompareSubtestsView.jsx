@@ -207,13 +207,15 @@ class CompareSubtestsView extends React.PureComponent {
   };
 
   render() {
+    const { location, history } = this.props;
     return (
       <CompareTableView
         {...this.props}
         getQueryParams={this.getQueryParams}
         getDisplayResults={this.getDisplayResults}
-        onPermalinkClick={hashValue => onPermalinkClick(hashValue, this.props)}
-        hashFragment={this.props.location.hash}
+        onPermalinkClick={hashValue =>
+          onPermalinkClick(hashValue, location, history)
+        }
         hasSubtests
       />
     );

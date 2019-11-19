@@ -115,7 +115,7 @@ export default class CompareTableControls extends React.Component {
       hasSubtests,
       projects,
       location,
-      history
+      history,
     } = this.props;
 
     const {

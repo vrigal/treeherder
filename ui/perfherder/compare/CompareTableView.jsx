@@ -19,7 +19,6 @@ import {
 import { getFrameworkData } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
-import { scrollToLine } from '../../helpers/utils';
 
 import RevisionInformation from './RevisionInformation';
 import ComparePageTitle from './ComparePageTitle';
@@ -56,15 +55,10 @@ export default class CompareTableView extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { loading } = this.state;
-    const { hashFragment } = this.props;
+    const { location } = this.props;
 
-    if (this.props.location.search !== prevProps.location.search) {
+    if (location.search !== prevProps.location.search) {
       this.getPerformanceData();
-    }
-
-    if (!loading && hashFragment) {
-      scrollToLine(hashFragment, 100);
     }
   }
 
@@ -356,7 +350,6 @@ CompareTableView.propTypes = {
   getQueryParams: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
-  hashFragment: PropTypes.string,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
@@ -365,5 +358,4 @@ CompareTableView.defaultProps = {
   filterByFramework: null,
   validated: PropTypes.shape({}),
   hasSubtests: false,
-  hashFragment: '',
 };
