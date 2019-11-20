@@ -17,6 +17,7 @@ import {
   createQueryParams,
 } from '../../helpers/url';
 import { getFrameworkData } from '../helpers';
+import { scrollToLine } from '../../helpers/utils';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
@@ -51,6 +52,9 @@ export default class CompareTableView extends React.Component {
       this.setState({ compareResults: compareData });
     } else {
       this.getPerformanceData();
+    }
+    if (location.hash) {
+      scrollToLine(location.hash, 100);
     }
   }
 
