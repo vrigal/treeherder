@@ -14,16 +14,16 @@ import withValidation from '../Validation';
 import CompareTableView from './CompareTableView';
 
 class CompareView extends React.PureComponent {
+  // didComponentUpdate() {
+  //   console.log(this.props);
+  // }
 
-  didComponentUpdate() {
-    console.log(this.props)
-  }
-  shouldComponentUpdate(prevProps) {
-    if (prevProps.history.location.hash !== this.props.history.location.hash) {
-      return false;
-    }
-    return true;
-  }
+  // shouldComponentUpdate(prevProps) {
+  //   if (prevProps.history.location.hash !== this.props.history.location.hash) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   getInterval = (oldTimestamp, newTimestamp) => {
     const now = new Date().getTime() / 1000;

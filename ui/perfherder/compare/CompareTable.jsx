@@ -21,7 +21,12 @@ import RepositoryModel from '../../models/repository';
 
 import TableAverage from './TableAverage';
 
-export default class CompareTable extends React.PureComponent {
+export default class CompareTable extends React.Component {
+  constructor() {
+    super();
+    this.ref = React.createRef();
+  }
+
   getColorClass = (data, type) => {
     const { className, isRegression, isImprovement } = data;
     if (type === 'bar' && !isRegression && !isImprovement) return 'secondary';
@@ -104,20 +109,19 @@ export default class CompareTable extends React.PureComponent {
         key={testName}
       >
         <thead>
-          <tr className="subtest-header bg-lightgray">
+          <tr
+            className="subtest-header bg-lightgray"
+            ref={ele => {
+              this.header = ele;
+            }}
+          >
             <th className="text-left">
               <span>{testName}</span>
               {location && (
                 <Button
                   className="permalink p-0 ml-1"
                   color="link"
-                  onClick={() =>
-                    onPermalinkClick(
-                      this.getHashBasedId(testName),
-                      location,
-                      history,
-                    )
-                  }
+                  onClick={() => this.header.scrollIntoView()}
                   title="Permalink to this test table"
                 >
                   <FontAwesomeIcon icon={faHashtag} />
