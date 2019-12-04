@@ -632,7 +632,9 @@ export const onPermalinkClick = function onPermalinkClick(
   hashBasedValue,
   location,
   history,
+  element,
 ) {
+  element.scrollIntoView();
+  // window.scrollBy(0, -100)
   history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
-  scrollToLine(`#${hashBasedValue}`, 100);
 };

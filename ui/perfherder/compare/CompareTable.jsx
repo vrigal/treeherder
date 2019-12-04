@@ -121,7 +121,14 @@ export default class CompareTable extends React.Component {
                 <Button
                   className="permalink p-0 ml-1"
                   color="link"
-                  onClick={() => this.header.scrollIntoView()}
+                  onClick={() =>
+                    onPermalinkClick(
+                      this.getHashBasedId(testName),
+                      location,
+                      history,
+                      this.header,
+                    )
+                  }
                   title="Permalink to this test table"
                 >
                   <FontAwesomeIcon icon={faHashtag} />
