@@ -3,7 +3,6 @@ import sortBy from 'lodash/sortBy';
 import queryString from 'query-string';
 
 import { getApiUrl } from '../helpers/url';
-import { scrollToLine } from '../helpers/utils';
 import { update, processResponse } from '../helpers/http';
 import PerfSeriesModel, {
   getSeriesName,
@@ -628,32 +627,9 @@ export const getSeriesData = async (
   return updates;
 };
 
-export const onPermalinkClick = function onPermalinkClick(
-  hashBasedValue,
-  location,
-  history,
-  element,
-) {
-  if (element) {
-    console.log(element);
-    window.scroll({
-      top: element.offsetTop - 50,
-      left: 0,
-      behavior: 'smooth',
-    });
-  } else {
-    console.log(hashBasedValue);
-    scrollToLine(`#${hashBasedValue}`);
-  }
-  // window.scroll({
-  //   top: element.offsetTop - 100,
-  //   left: 0,
-  //   behavior: 'smooth',
-  // });
-  // console.log(element);
-  history.replace({
-    pathname: history.location.pathname,
-    search: history.location.search,
-    hash: `#${hashBasedValue}`,
-  });
+export const scrollWithOffset = function scrollWithOffset(el) {
+  // solution from https://github.com/rafrex/react-router-hash-link/issues/25#issuecomment-536688104
+  const yCoordinate = el.getBoundingClientRect().top + window.pageYOffset;
+  const yOffset = -30;
+  window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' });
 };
