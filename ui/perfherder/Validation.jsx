@@ -44,7 +44,7 @@ const withValidation = (
     shouldComponentUpdate(prevProps) {
       const { location } = this.props;
 
-      if (location.hash && prevProps.location.hash !== location.hash) {
+      if (location.hash !== prevProps.location.hash) {
         return false;
       }
       return true;

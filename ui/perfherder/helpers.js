@@ -634,11 +634,12 @@ export const onPermalinkClick = function onPermalinkClick(
   history,
   element,
 ) {
-  element.scrollIntoView();
-  // window.scrollBy(0, -100)
-  history.push({
-    pathname: location.pathname,
-    search: location.search,
+  element.scrollIntoView(true);
+  // element.offsetTop = 100;
+  // console.log(element);
+  history.replace({
+    pathname: history.location.pathname,
+    search: history.location.search,
     hash: `#${hashBasedValue}`,
   });
 };
