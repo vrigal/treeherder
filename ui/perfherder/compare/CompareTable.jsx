@@ -10,6 +10,7 @@ import {
   faThumbsUp,
   faHashtag,
 } from '@fortawesome/free-solid-svg-icons';
+import { HashLink } from 'react-router-hash-link';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber, formatNumber, onPermalinkClick } from '../helpers';
@@ -89,6 +90,19 @@ export default class CompareTable extends React.Component {
     }
   };
 
+  scrollWithOffset = el => {
+    // const yCoordinate = el.getBoundingClientRect().top + window.pageYOffset;
+    // const yOffset = -80;
+    // window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' });
+    const elementPosition = el.offsetTop - 50;
+    window.scroll({
+      top: elementPosition,
+      left: 0,
+      behavior: 'smooth',
+    });
+    console.log(el);
+  };
+
   render() {
     const {
       data,
@@ -111,29 +125,32 @@ export default class CompareTable extends React.Component {
         <thead>
           <tr
             className="subtest-header bg-lightgray"
-            ref={ele => {
-              this.header = ele;
-            }}
           >
             <th className="text-left">
               <span>{testName}</span>
-              {location && (
-                <Button
-                  className="permalink p-0 ml-1"
-                  color="link"
-                  onClick={() =>
-                    onPermalinkClick(
-                      this.getHashBasedId(testName),
-                      location,
-                      history,
-                      this.header,
-                    )
-                  }
-                  title="Permalink to this test table"
-                >
-                  <FontAwesomeIcon icon={faHashtag} />
-                </Button>
-              )}
+              <HashLink
+                to={`${location.pathname}${
+                  location.search
+                }#${this.getHashBasedId(testName)}`}
+                scroll={this.scrollWithOffset}
+                title="Permalink to this test table"                
+              >
+                <FontAwesomeIcon icon={faHashtag} />
+              </HashLink>
+              <Button
+                className="permalink p-0 ml-1"
+                color="link"
+                onClick={() =>
+                  onPermalinkClick(
+                    this.getHashBasedId(testName),
+                    location,
+                    history,
+                    this.header,
+                  )
+                }
+              >
+                <FontAwesomeIcon icon={faHashtag} />
+              </Button>
             </th>
             <th className="table-width-lg">Base</th>
             {/* empty for less than/greater than data */}

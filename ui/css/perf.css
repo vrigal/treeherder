@@ -1,5 +1,11 @@
-body {
+html {
+  height: auto;
   overflow: auto;
+}
+
+body {
+  height: auto;
+  overflow: visible;
 }
 
 section {

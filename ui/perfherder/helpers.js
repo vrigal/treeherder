@@ -634,8 +634,22 @@ export const onPermalinkClick = function onPermalinkClick(
   history,
   element,
 ) {
-  element.scrollIntoView(true);
-  // element.offsetTop = 100;
+  if (element) {
+    console.log(element);
+    window.scroll({
+      top: element.offsetTop - 50,
+      left: 0,
+      behavior: 'smooth',
+    });
+  } else {
+    console.log(hashBasedValue);
+    scrollToLine(`#${hashBasedValue}`);
+  }
+  // window.scroll({
+  //   top: element.offsetTop - 100,
+  //   left: 0,
+  //   behavior: 'smooth',
+  // });
   // console.log(element);
   history.replace({
     pathname: history.location.pathname,
