@@ -636,5 +636,9 @@ export const onPermalinkClick = function onPermalinkClick(
 ) {
   element.scrollIntoView();
   // window.scrollBy(0, -100)
-  history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
+  history.push({
+    pathname: location.pathname,
+    search: location.search,
+    hash: `#${hashBasedValue}`,
+  });
 };
