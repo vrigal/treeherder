@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert, Col, Row, Container } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import delay from 'lodash/delay';
 
 import ErrorMessages from '../../shared/ErrorMessages';
 import {
@@ -53,8 +52,9 @@ export default class CompareTableView extends React.Component {
     } else {
       this.getPerformanceData();
     }
+
     if (location.hash) {
-      delay(() => {
+      setTimeout(() => {
         const el = document.querySelector(location.hash);
         if (el) scrollWithOffset(el);
       }, 1000);

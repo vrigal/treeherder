@@ -93,7 +93,6 @@ export default class CompareTable extends React.PureComponent {
       hasSubtests,
       isBaseAggregate,
       location,
-      history,
     } = this.props;
 
     return (

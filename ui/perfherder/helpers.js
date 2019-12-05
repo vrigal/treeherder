@@ -635,4 +635,4 @@ export const scrollWithOffset = function scrollWithOffset(el) {
 };
 
 // TODO remove use and check IFV menu (top-nav class use due to changes)
-export const onPermaLinkClick = () => {};
+export const onPermalinkClick = () => {};
