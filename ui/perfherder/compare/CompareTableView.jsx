@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert, Col, Row, Container } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import delay from 'lodash/delay';
 
 import ErrorMessages from '../../shared/ErrorMessages';
 import {
@@ -16,8 +17,7 @@ import {
   perfSummaryEndpoint,
   createQueryParams,
 } from '../../helpers/url';
-import { getFrameworkData } from '../helpers';
-import { scrollToLine } from '../../helpers/utils';
+import { getFrameworkData, scrollWithOffset } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
@@ -54,7 +54,10 @@ export default class CompareTableView extends React.Component {
       this.getPerformanceData();
     }
     if (location.hash) {
-      scrollToLine(location.hash, 100);
+      delay(() => {
+        const el = document.querySelector(location.hash);
+        if (el) scrollWithOffset(el);
+      }, 1000);
     }
   }
 

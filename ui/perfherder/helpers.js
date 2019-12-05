@@ -630,6 +630,9 @@ export const getSeriesData = async (
 export const scrollWithOffset = function scrollWithOffset(el) {
   // solution from https://github.com/rafrex/react-router-hash-link/issues/25#issuecomment-536688104
   const yCoordinate = el.getBoundingClientRect().top + window.pageYOffset;
-  const yOffset = -30;
+  const yOffset = -35;
   window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' });
 };
+
+// TODO remove use and check IFV menu (top-nav class use due to changes)
+export const onPermaLinkClick = () => {};

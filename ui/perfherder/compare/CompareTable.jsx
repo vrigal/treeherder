@@ -22,12 +22,7 @@ import RepositoryModel from '../../models/repository';
 
 import TableAverage from './TableAverage';
 
-export default class CompareTable extends React.Component {
-  constructor() {
-    super();
-    this.ref = React.createRef();
-  }
-
+export default class CompareTable extends React.PureComponent {
   getColorClass = (data, type) => {
     const { className, isRegression, isImprovement } = data;
     if (type === 'bar' && !isRegression && !isImprovement) return 'secondary';
@@ -117,7 +112,7 @@ export default class CompareTable extends React.Component {
                 to={`${location.pathname}${
                   location.search
                 }#${this.getHashBasedId(testName)}`}
-                scroll={this.scrollWithOffset}
+                scroll={scrollWithOffset}
                 title="Permalink to this test table"
               >
                 {' '}
@@ -164,7 +159,7 @@ export default class CompareTable extends React.Component {
                     to={`${location.pathname}${
                       location.search
                     }#${this.getHashBasedId(testName, rowLevelResults.name)}`}
-                    scroll={this.scrollWithOffset}
+                    scroll={scrollWithOffset}
                     title="Permalink to this test"
                     className="permalink p-0 ml-1"
                   >
