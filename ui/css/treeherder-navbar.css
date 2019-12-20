@@ -47,6 +47,11 @@ label.dropdown-item {
   margin-bottom: 0;
 }
 
+label.dropdown-item.active,
+.dropdown-item:active {
+  color: #0b0c0e;
+}
+
 .dropdown-item input[type='checkbox'] {
   margin-right: 5px;
 }
@@ -436,6 +441,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 
 .dropdown-header {
   font-size: 12px;
+  color: #656f77;
 }
 
 .dropdown-link,

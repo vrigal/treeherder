@@ -63,6 +63,7 @@ class PushHealthStatus extends Component {
 
     return (
       <a
+        className="push-health"
         href={getPushHealthUrl({ repo: repoName, revision })}
         target="_blank"
         rel="noopener noreferrer"
