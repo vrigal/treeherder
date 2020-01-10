@@ -46,7 +46,7 @@ const FilterControls = ({
 }) => {
   const createButton = filter => (
     <Button
-      color="info"
+      color="darker-info"
       outline
       onClick={() => updateFilter(filter.stateName)}
       active={filter.state}
