@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCheck,
+  faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import PushModel from '../models/push';
 import { getPushHealthUrl } from '../helpers/url';
@@ -45,9 +50,16 @@ class PushHealthStatus extends Component {
     if (!failureStatus) {
       const { needInvestigation } = data;
       const testsNeed = needInvestigation > 1 ? 'tests need' : 'test needs';
-      const healthStatus = needInvestigation
-        ? `${needInvestigation} ${testsNeed} investigation`
-        : 'OK';
+      const healthStatus = needInvestigation ? (
+        <span>
+          <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
+          {needInvestigation} {testsNeed} investigation
+        </span>
+      ) : (
+        <span>
+          <FontAwesomeIcon icon={faCheck} className="mr-1" /> OK
+        </span>
+      );
 
       this.setState({ healthStatus, needInvestigation });
     }
