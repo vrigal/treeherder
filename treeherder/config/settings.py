@@ -25,6 +25,7 @@ IS_WINDOWS = "windows" in platform.system().lower()
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 
+
 NEW_RELIC_DEVELOPER_MODE = env.bool("NEW_RELIC_DEVELOPER_MODE", default=True if DEBUG else False)
 
 # Papertrail logs WARNING messages. This env variable allows modifying the behaviour
@@ -385,11 +386,8 @@ if DEBUG:
     # from: https://ytec.nl/blog/debugging-django-vscode-without-using-noreload/
     if os.environ.get('RUN_MAIN') or os.environ.get('WERKZEUG_RUN_MAIN'):
         import ptvsd
-        ptvsd.enable_attach(address=('0.0.0.0', 3000), redirect_output=True)
-    # used for remote debugging in docker containers (VSCode)
-    # import ptvsd
-    # ptvsd.enable_attach(address=('0.0.0.0', 3000))
-    # ptvsd.wait_for_attach()
+        ptvsd.enable_attach(address=('0.0.0.0', 3000))
+        ptvsd.wait_for_attach()
 
 # Rest Framework
 REST_FRAMEWORK = {
