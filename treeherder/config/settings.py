@@ -1,5 +1,6 @@
 import platform
 import re
+import os
 from datetime import timedelta
 from os.path import (abspath,
                      dirname,
@@ -379,6 +380,12 @@ if DEBUG:
     }
 
     INSTALLED_APPS.append('debug_toolbar')
+
+    # Only attach the debugger when we're the Django that deals with requests
+    # from: https://ytec.nl/blog/debugging-django-vscode-without-using-noreload/
+    if os.environ.get('RUN_MAIN') or os.environ.get('WERKZEUG_RUN_MAIN'):
+        import ptvsd
+        ptvsd.enable_attach(address=('0.0.0.0', 3000), redirect_output=True)
     # used for remote debugging in docker containers (VSCode)
     # import ptvsd
     # ptvsd.enable_attach(address=('0.0.0.0', 3000))
