@@ -320,7 +320,7 @@ async def handleTaskException(pushInfo, task, message):
         job)
     return job
 
-
+# TODO delete
 async def fetchArtifacts(root_url, taskId, runId):
     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     res = await asyncQueue.listArtifacts(taskId, runId)
@@ -342,7 +342,7 @@ async def fetchArtifacts(root_url, taskId, runId):
 
     return artifacts
 
-
+# TODO delete
 async def addArtifactUploadedLinks(root_url, taskId, runId, job):
     artifacts = []
     try:

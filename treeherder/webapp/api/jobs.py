@@ -482,30 +482,46 @@ class JobsProjectViewSet(viewsets.ViewSet):
         return Response(response_body)
 
 
-# async def fetchArtifacts(root_url, taskId, runId):
-#     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
-#     res = await asyncQueue.listArtifacts(taskId, runId)
-#     artifacts = res["artifacts"]
+# async def addArtifactUploadedLinks(root_url, taskId, runId, job):
+#     artifacts = []
+#     try:
+#         artifacts = await fetchArtifacts(root_url, taskId, runId)
+#     except Exception:
+#         logger.debug("Artifacts could not be found for task: %s run: %s", taskId, runId)
+#         return job
 
-#     continuationToken = res.get("continuationToken")
-#     while continuationToken is not None:
-#         continuation = {
-#           "continuationToken": res["continuationToken"]
-#         }
+#     seen = {}
+#     links = []
+#     for artifact in artifacts:
+#         name = os.path.basename(artifact["name"])
+#         # Bug 1595902 - It seems that directories are showing up as artifacts; skip them
+#         if not name:
+#             continue
+#         if not seen.get(name):
+#             seen[name] = [artifact["name"]]
+#         else:
+#             seen[name].append(artifact["name"])
+#             name = "{name} ({length})".format(name=name, length=len(seen[name])-1)
 
-#         try:
-#             res = await asyncQueue.listArtifacts(taskId, runId, continuation)
-#         except Exception:
-#             break
+#         links.append({
+#             "label": "artifact uploaded",
+#             "linkText": name,
+#             "url": taskcluster_urls.api(
+#                 root_url,
+#                 "queue",
+#                 "v1",
+#                 "task/{taskId}/runs/{runId}/artifacts/{artifact_name}".format(
+#                     taskId=taskId, runId=runId, artifact_name=artifact["name"]
+#                 )),
+#         })
 
-#         artifacts = artifacts.concat(res["artifacts"])
-#         continuationToken = res.get("continuationToken")
-
-#     return artifacts
+#     job["jobInfo"]["links"] = links
+#     return job
 
 
 class JobDetailPagination(pagination.IdPagination):
     page_size = 2000
+
 
 @api_view()
 def job_detail(request):
@@ -522,10 +538,18 @@ def job_detail(request):
         raise ParseError("Must filter on one of: {}".format(
             ", ".join(required_filters)))
 
-    # task_id = request.query_params.get('job_guid') or request.query_params.get('job__guid')  # for backwards compat
+    job_id = request.query_params.get('job_id')
+    job_id__in = request.query_params.getlist('job_id__in')
+    job_guid = request.query_params.get('job_guid')
+    job__guid = request.query_params.get('job__guid')  # for backwards compat
+    # title = django_filters.CharFilter(field_name='title') deprecated
+    # value = django_filters.CharFilter(field_name='value') deprecated
+    push_id = request.query_params.get('job_guid')('push_id')
+    repository = request.query_params.get('repository')
+
     root_url = 'https://firefox-ci-tc.services.mozilla.com'
     response_data = []
-    task_id = 'aNQOqM0HQwC9eK612X7nQQ'
+    task_id = 'CO0uIBpZQbe5QePUKqOF4Q'
 
     if task_id:
         url = taskcluster_urls.api(
@@ -543,7 +567,6 @@ def job_detail(request):
     # queryset = JobDetail.objects.all().select_related('job', 'job__repository')
     # serializer_class = serializers.JobDetailSerializer
     # pagination_class = JobDetailPagination
-
 
 
 # class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
