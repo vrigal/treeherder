@@ -29,6 +29,8 @@ from treeherder.webapp.api import (pagination,
 from treeherder.webapp.api.utils import (CharInFilter,
                                          NumberInFilter,
                                          to_timestamp)
+import taskcluster_urls
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -480,6 +482,28 @@ class JobsProjectViewSet(viewsets.ViewSet):
         return Response(response_body)
 
 
+# async def fetchArtifacts(root_url, taskId, runId):
+#     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
+#     res = await asyncQueue.listArtifacts(taskId, runId)
+#     artifacts = res["artifacts"]
+
+#     continuationToken = res.get("continuationToken")
+#     while continuationToken is not None:
+#         continuation = {
+#           "continuationToken": res["continuationToken"]
+#         }
+
+#         try:
+#             res = await asyncQueue.listArtifacts(taskId, runId, continuation)
+#         except Exception:
+#             break
+
+#         artifacts = artifacts.concat(res["artifacts"])
+#         continuationToken = res.get("continuationToken")
+
+#     return artifacts
+
+
 class JobDetailPagination(pagination.IdPagination):
     page_size = 2000
 
@@ -489,7 +513,6 @@ def job_detail(request):
     Endpoint for retrieving metadata (e.g. links to artifacts, file sizes)
     associated with a particular job
     '''
-
     query_param_keys = request.query_params.keys()
     required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in', 'push_id']
 
@@ -499,10 +522,20 @@ def job_detail(request):
         raise ParseError("Must filter on one of: {}".format(
             ", ".join(required_filters)))
 
-    job_guid = request.query_params.get('job__guid')
-    job__guid = request.query_params.get('job__guid')  # for backwards compat
+    task_id = request.query_params.get('job_guid') or request.query_params.get('job__guid')  # for backwards compat
+    root_url = 'https://firefox-ci-tc.services.mozilla.com'
+    response_data = []
 
-    return Response(data=[])
+    if task_id:
+        url = taskcluster_urls.api(
+            root_url,
+            "queue",
+            "v1",
+            f"task/{task_id}/runs/0/artifacts/")
+        print(url)
+        response_data = requests.get(url).json()
+
+    return Response(data=response_data)
     # serializer = serializers.JobDetailSerializer(data=response_data, many=True)
     # return Response(data=serializer.data)
     # queryset = None
