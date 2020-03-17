@@ -522,16 +522,17 @@ def job_detail(request):
         raise ParseError("Must filter on one of: {}".format(
             ", ".join(required_filters)))
 
-    task_id = request.query_params.get('job_guid') or request.query_params.get('job__guid')  # for backwards compat
+    # task_id = request.query_params.get('job_guid') or request.query_params.get('job__guid')  # for backwards compat
     root_url = 'https://firefox-ci-tc.services.mozilla.com'
     response_data = []
+    task_id = 'aNQOqM0HQwC9eK612X7nQQ'
 
     if task_id:
         url = taskcluster_urls.api(
             root_url,
             "queue",
             "v1",
-            f"task/{task_id}/runs/0/artifacts/")
+            f"task/{task_id}/runs/0/artifacts")
         print(url)
         response_data = requests.get(url).json()
 
