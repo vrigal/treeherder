@@ -490,6 +490,18 @@ def job_detail(request):
     associated with a particular job
     '''
 
+    query_param_keys = request.query_params.keys()
+    required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in', 'push_id']
+
+    # unfiltered requests can potentially create huge sql queries, so
+    # make sure the user passes a job id or guid
+    if set(required_filters).isdisjoint(set(query_param_keys)):
+        raise ParseError("Must filter on one of: {}".format(
+            ", ".join(required_filters)))
+
+    job_guid = request.query_params.get('job__guid')
+    job__guid = request.query_params.get('job__guid')  # for backwards compat
+
     return Response(data=[])
     # serializer = serializers.JobDetailSerializer(data=response_data, many=True)
     # return Response(data=serializer.data)
@@ -497,22 +509,7 @@ def job_detail(request):
     # queryset = JobDetail.objects.all().select_related('job', 'job__repository')
     # serializer_class = serializers.JobDetailSerializer
     # pagination_class = JobDetailPagination
-    # one of these is required
-    # required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in', 'push_id']
 
-    # def list(self, request):
-    #     query_param_keys = request.query_params.keys()
-
-    #     # unfiltered requests can potentially create huge sql queries, so
-    #     # make sure the user passes a job id or guid
-    #     if set(self.required_filters).isdisjoint(set(query_param_keys)):
-    #         raise ParseError("Must filter on one of: {}".format(
-    #             ", ".join(self.required_filters)))
-
-    #     job_guid = request.query_params.get('job__guid')
-    #     job__guid = request.query_params.get('job__guid')  # for backwards compat
-
-    #     return viewsets.ReadOnlyModelViewSet.list(self, request)
 
 
 # class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
