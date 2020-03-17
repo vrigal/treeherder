@@ -5,7 +5,7 @@ import django_filters
 from dateutil import parser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models as django_models
-from rest_framework import viewsets
+from rest_framework import (exceptions, generics, viewsets)
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
@@ -26,7 +26,7 @@ from treeherder.webapp.api import (pagination,
 from treeherder.webapp.api.utils import (CharInFilter,
                                          NumberInFilter,
                                          to_timestamp)
-
+from treeherder.etl.taskcluster_pulse.handler import fetchArtifacts
 logger = logging.getLogger(__name__)
 
 
@@ -476,42 +476,18 @@ class JobsProjectViewSet(viewsets.ViewSet):
 
         return Response(response_body)
 
+class JobDetailPagination(pagination.IdPagination):
+    page_size = 2000
 
-class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
+class JobDetailViewSet(generics.ListAPIView):
     '''
     Endpoint for retrieving metadata (e.g. links to artifacts, file sizes)
     associated with a particular job
     '''
-    queryset = JobDetail.objects.all().select_related('job', 'job__repository')
+    queryset= None
+    # queryset = JobDetail.objects.all().select_related('job', 'job__repository')
     serializer_class = serializers.JobDetailSerializer
-
-    class JobDetailFilter(django_filters.rest_framework.FilterSet):
-
-        job_id = django_filters.NumberFilter(field_name='job')
-        job_id__in = NumberInFilter(field_name='job', lookup_expr='in')
-        job_guid = django_filters.CharFilter(field_name='job__guid')
-        job__guid = django_filters.CharFilter(field_name='job__guid')  # for backwards compat
-        title = django_filters.CharFilter(field_name='title')
-        value = django_filters.CharFilter(field_name='value')
-        push_id = django_filters.NumberFilter(field_name='job__push')
-        repository = django_filters.CharFilter(field_name='job__repository__name')
-
-        class Meta:
-            model = JobDetail
-            fields = ['job_id', 'job_guid', 'job__guid', 'job_id__in', 'title',
-                      'value', 'push_id', 'repository']
-
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    filterset_class = JobDetailFilter
-
-    # using a custom pagination size of 2000 to avoid breaking mozscreenshots
-    # which doesn't paginate through results yet
-    # https://github.com/mnoorenberghe/mozscreenshots/issues/28
-    class JobDetailPagination(pagination.IdPagination):
-        page_size = 2000
-
     pagination_class = JobDetailPagination
-
     # one of these is required
     required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in', 'push_id']
 
@@ -524,4 +500,80 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
             raise ParseError("Must filter on one of: {}".format(
                 ", ".join(self.required_filters)))
 
-        return viewsets.ReadOnlyModelViewSet.list(self, request)
+        serializer = self.get_serializer(self.queryset, many=True)
+        return Response(data=serializer.data)
+
+    # class JobDetailFilter(django_filters.rest_framework.FilterSet):
+
+    #     job_id = django_filters.NumberFilter(field_name='job')
+    #     job_id__in = NumberInFilter(field_name='job', lookup_expr='in')
+    #     job_guid = django_filters.CharFilter(field_name='job__guid')
+    #     job__guid = django_filters.CharFilter(field_name='job__guid')  # for backwards compat
+    #     title = django_filters.CharFilter(field_name='title')
+    #     value = django_filters.CharFilter(field_name='value')
+    #     push_id = django_filters.NumberFilter(field_name='job__push')
+    #     repository = django_filters.CharFilter(field_name='job__repository__name')
+
+    #     class Meta:
+    #         model = JobDetail
+    #         fields = ['job_id', 'job_guid', 'job__guid', 'job_id__in', 'title',
+    #                   'value', 'push_id', 'repository']
+
+    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    # filterset_class = JobDetailFilter
+
+    # using a custom pagination size of 2000 to avoid breaking mozscreenshots
+    # which doesn't paginate through results yet
+    # https://github.com/mnoorenberghe/mozscreenshots/issues/28
+
+
+        # return viewsets.ReadOnlyModelViewSet.list(self, request)
+
+# class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
+#     '''
+#     Endpoint for retrieving metadata (e.g. links to artifacts, file sizes)
+#     associated with a particular job
+#     '''
+#     queryset = JobDetail.objects.all().select_related('job', 'job__repository')
+#     serializer_class = serializers.JobDetailSerializer
+
+#     class JobDetailFilter(django_filters.rest_framework.FilterSet):
+
+#         job_id = django_filters.NumberFilter(field_name='job')
+#         job_id__in = NumberInFilter(field_name='job', lookup_expr='in')
+#         job_guid = django_filters.CharFilter(field_name='job__guid')
+#         job__guid = django_filters.CharFilter(field_name='job__guid')  # for backwards compat
+#         title = django_filters.CharFilter(field_name='title')
+#         value = django_filters.CharFilter(field_name='value')
+#         push_id = django_filters.NumberFilter(field_name='job__push')
+#         repository = django_filters.CharFilter(field_name='job__repository__name')
+
+#         class Meta:
+#             model = JobDetail
+#             fields = ['job_id', 'job_guid', 'job__guid', 'job_id__in', 'title',
+#                       'value', 'push_id', 'repository']
+
+#     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+#     filterset_class = JobDetailFilter
+
+#     # using a custom pagination size of 2000 to avoid breaking mozscreenshots
+#     # which doesn't paginate through results yet
+#     # https://github.com/mnoorenberghe/mozscreenshots/issues/28
+#     class JobDetailPagination(pagination.IdPagination):
+#         page_size = 2000
+
+#     pagination_class = JobDetailPagination
+
+#     # one of these is required
+#     required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in', 'push_id']
+
+#     def list(self, request):
+#         query_param_keys = request.query_params.keys()
+
+#         # unfiltered requests can potentially create huge sql queries, so
+#         # make sure the user passes a job id or guid
+#         if set(self.required_filters).isdisjoint(set(query_param_keys)):
+#             raise ParseError("Must filter on one of: {}".format(
+#                 ", ".join(self.required_filters)))
+
+#         return viewsets.ReadOnlyModelViewSet.list(self, request)
