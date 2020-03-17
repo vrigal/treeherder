@@ -8,7 +8,7 @@ from django.db import models as django_models
 from rest_framework import (exceptions,
                             generics,
                             viewsets)
-from rest_framework.decorators import action
+from rest_framework.decorators import (api_view, action)
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -483,32 +483,36 @@ class JobsProjectViewSet(viewsets.ViewSet):
 class JobDetailPagination(pagination.IdPagination):
     page_size = 2000
 
-
-class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
+@api_view()
+def job_detail(request):
     '''
     Endpoint for retrieving metadata (e.g. links to artifacts, file sizes)
     associated with a particular job
     '''
-    queryset = None
+
+    return Response(data=[])
+    # serializer = serializers.JobDetailSerializer(data=response_data, many=True)
+    # return Response(data=serializer.data)
+    # queryset = None
     # queryset = JobDetail.objects.all().select_related('job', 'job__repository')
-    serializer_class = serializers.JobDetailSerializer
-    pagination_class = JobDetailPagination
+    # serializer_class = serializers.JobDetailSerializer
+    # pagination_class = JobDetailPagination
     # one of these is required
-    required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in', 'push_id']
+    # required_filters = ['job_guid', 'job__guid', 'job_id', 'job_id__in', 'push_id']
 
-    def list(self, request):
-        query_param_keys = request.query_params.keys()
+    # def list(self, request):
+    #     query_param_keys = request.query_params.keys()
 
-        # unfiltered requests can potentially create huge sql queries, so
-        # make sure the user passes a job id or guid
-        if set(self.required_filters).isdisjoint(set(query_param_keys)):
-            raise ParseError("Must filter on one of: {}".format(
-                ", ".join(self.required_filters)))
+    #     # unfiltered requests can potentially create huge sql queries, so
+    #     # make sure the user passes a job id or guid
+    #     if set(self.required_filters).isdisjoint(set(query_param_keys)):
+    #         raise ParseError("Must filter on one of: {}".format(
+    #             ", ".join(self.required_filters)))
 
-        job_guid = request.query_params.get('job__guid')
-        job__guid = request.query_params.get('job__guid')  # for backwards compat
+    #     job_guid = request.query_params.get('job__guid')
+    #     job__guid = request.query_params.get('job__guid')  # for backwards compat
 
-        return viewsets.ReadOnlyModelViewSet.list(self, request)
+    #     return viewsets.ReadOnlyModelViewSet.list(self, request)
 
 
 # class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):

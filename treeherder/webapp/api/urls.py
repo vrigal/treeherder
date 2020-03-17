@@ -130,8 +130,8 @@ default_router.register(r'performance/validity-dashboard',
                         basename='validity-dashboard')
 default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
                         basename='bugzilla')
-default_router.register(r'jobdetail', jobs.JobDetailViewSet,
-                        basename='jobdetail')
+# default_router.register(r'jobdetail', jobs.JobDetailViewSet,
+#                         basename='jobdetail')
 default_router.register(r'auth', auth.AuthViewSet,
                         basename='auth')
 default_router.register(r'changelog', changelog.ChangelogViewSet,
@@ -146,4 +146,5 @@ urlpatterns = [
     url(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
     url(r'^performance/summary/$', performance_data.PerformanceSummary.as_view(), name='performance-summary'),
     url(r'^csp-report/$', csp_report.csp_report_collector, name='csp-report'),
+    url(r'^jobdetail/$', jobs.job_detail, name='jobdetail'),
 ]
