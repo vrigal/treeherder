@@ -551,7 +551,7 @@ def job_detail(request):
     response_data = []
     task_id = 'CO0uIBpZQbe5QePUKqOF4Q'
 
-    queryset = Job.objects.select_related('repository', 'taskcluster_metadata', 'push').values('id', 'guid', 'repository__tc_root_url')
+    queryset = Job.objects.select_related('repository', 'taskcluster_metadata', 'push').values('id', 'guid', 'repository__tc_root_url', 'taskcluster_metadata__task_id')
 
     # if job_id:
     #     queryset = queryset.filter(id=job_id)
@@ -569,6 +569,9 @@ def job_detail(request):
     #     queryset = queryset.filter(repository__name=repository)
 
     print(queryset)
+
+    # TODO
+    # use queryset for root_url and task_id; can also get retry_id (same as runId I think?)
 
     if task_id:
         url = taskcluster_urls.api(
