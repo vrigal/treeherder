@@ -544,12 +544,31 @@ def job_detail(request):
     job__guid = request.query_params.get('job__guid')  # for backwards compat
     # title = django_filters.CharFilter(field_name='title') deprecated
     # value = django_filters.CharFilter(field_name='value') deprecated
-    push_id = request.query_params.get('job_guid')('push_id')
+    push_id = request.query_params.get('push_id')
     repository = request.query_params.get('repository')
 
     root_url = 'https://firefox-ci-tc.services.mozilla.com'
     response_data = []
     task_id = 'CO0uIBpZQbe5QePUKqOF4Q'
+
+    queryset = Job.objects.select_related('repository', 'taskcluster_metadata', 'push').values('id', 'guid', 'repository__tc_root_url')
+
+    # if job_id:
+    #     queryset = queryset.filter(id=job_id)
+
+    # if job_id__in:
+    #     queryset = queryset.filter(id_in=job_id__in)
+
+    if job_guid or job__guid:
+        queryset = queryset.filter(guid=(job_guid or job__guid))
+
+    # if push_id:
+    #     queryset = queryset.filter(push__id=push_id)
+
+    # if repository:
+    #     queryset = queryset.filter(repository__name=repository)
+
+    print(queryset)
 
     if task_id:
         url = taskcluster_urls.api(
