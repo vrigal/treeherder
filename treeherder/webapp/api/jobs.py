@@ -547,11 +547,10 @@ def job_detail(request):
     push_id = request.query_params.get('push_id')
     repository = request.query_params.get('repository')
 
-    root_url = 'https://firefox-ci-tc.services.mozilla.com'
     response_data = []
-    task_id = 'CO0uIBpZQbe5QePUKqOF4Q'
 
-    queryset = Job.objects.select_related('repository', 'taskcluster_metadata', 'push').values('id', 'guid', 'repository__tc_root_url', 'taskcluster_metadata__task_id')
+    queryset = (Job.objects.select_related('repository', 'taskcluster_metadata', 'push')
+                           .values('id', 'guid', 'repository__tc_root_url', 'taskcluster_metadata__task_id'))
 
     # if job_id:
     #     queryset = queryset.filter(id=job_id)
@@ -568,18 +567,28 @@ def job_detail(request):
     # if repository:
     #     queryset = queryset.filter(repository__name=repository)
 
-    print(queryset)
+    values = list(queryset)[0]
+    task_id = values.get('taskcluster_metadata__task_id', None)
+    job_id = values.get('id', None)
+    guid = values.get('guid', None)
+    tc_root_url = values.get('repository__tc_root_url', None)
+
+    print(tc_root_url)
 
     # TODO
-    # use queryset for root_url and task_id; can also get retry_id (same as runId I think?)
+    # can get retry_id from taskcluster_metadta (what's the difference between run id and task id?)
+    # need to support tc API calls for potentially multiple task_ids for job_id__in param
+    # create same data structure as job detail returns currently
+    # add pagination back in
+    # in separate commit, remove fetchArtifacts in handler.py and writes to JobDetail table
 
-    if task_id:
+    if task_id and tc_root_url:
         url = taskcluster_urls.api(
-            root_url,
+            tc_root_url,
             "queue",
             "v1",
             f"task/{task_id}/runs/0/artifacts")
-        print(url)
+
         response_data = requests.get(url).json()
 
     return Response(data=response_data)
