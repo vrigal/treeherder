@@ -10,7 +10,6 @@ from treeherder.etl.jobs import store_job_data
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (Job,
-                                     JobDetail,
                                      JobLog,
                                      TextLogError,
                                      TextLogStep)
@@ -300,8 +299,6 @@ def test_store_job_artifacts_by_add_artifact(
         }
     })
 
-    ji_blob = json.dumps({"job_details": [{"title": "mytitle",
-                                           "value": "myvalue"}]})
     pb_blob = json.dumps({"build_url": "feh", "chunk": 1, "config_file": "mah"})
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
@@ -314,12 +311,6 @@ def test_store_job_artifacts_by_add_artifact(
                     'name': 'text_log_summary',
                     'type': 'json',
                     'blob': tls_blob,
-                    'job_guid': job_guid,
-                },
-                {
-                    'name': 'Job Info',
-                    'type': 'json',
-                    'blob': ji_blob,
                     'job_guid': job_guid,
                 },
                 {
@@ -342,15 +333,6 @@ def test_store_job_artifacts_by_add_artifact(
     }
 
     store_job_data(test_repository, [job_data])
-
-    assert JobDetail.objects.count() == 1
-    assert model_to_dict(JobDetail.objects.get(job__guid=job_guid)) == {
-        'id': 1,
-        'job': 1,
-        'title': 'mytitle',
-        'value': 'myvalue',
-        'url': None
-    }
 
     assert TextLogStep.objects.count() == 1
     assert model_to_dict(TextLogStep.objects.get(job__guid=job_guid)) == {
