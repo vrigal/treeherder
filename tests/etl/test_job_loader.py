@@ -61,7 +61,7 @@ async def new_pulse_jobs(sample_data, test_repository, push_stored):
     for message in list(pulseMessages.values()):
         taskId = message["payload"]["status"]["taskId"]
         task = tasks[taskId]
-        print(taskId)
+
         # If we pass task to handleMessage we won't hit the network
         taskRuns = await handleMessage(message, task)
         # handleMessage returns [] when it is a task that is not meant for Treeherder
@@ -137,8 +137,8 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, push_stored,
                       "parse_status": 0}]
     assert [{"name": item.name, "url": item.url, "parse_status": item.status}
             for item in job_logs.all()] == logs_expected
-
-    assert JobDetail.objects.count() == 2
+    # we're no longer storing artifacts in this table
+    assert JobDetail.objects.count() == 0
 
 
 def test_ingest_pending_pulse_job(pulse_jobs, push_stored,
@@ -164,7 +164,8 @@ def test_ingest_pending_pulse_job(pulse_jobs, push_stored,
 
     # should not have processed any log or details for pending jobs
     assert JobLog.objects.count() == 2
-    assert JobDetail.objects.count() == 2
+    # we're no longer storing artifacts in this table
+    assert JobDetail.objects.count() == 0
 
 
 def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, push_stored,
