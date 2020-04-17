@@ -9,8 +9,6 @@ import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 
-from treeherder.etl.artifact import (serialize_artifact_json_blobs,
-                                     store_job_artifacts)
 from treeherder.etl.common import get_guid_root
 from treeherder.model.models import (BuildPlatform,
                                      FailureClassification,
@@ -265,28 +263,6 @@ def _load_job(repository, job_datum, push_id):
         last_modified=datetime.now(),
         push_id=push_id)
 
-    artifacts = job_datum.get('artifacts', [])
-
-    has_text_log_summary = any(x for x in artifacts
-                               if x['name'] == 'text_log_summary')
-    if artifacts:
-        artifacts = serialize_artifact_json_blobs(artifacts)
-
-        # need to add job guid to artifacts, since they likely weren't
-        # present in the beginning
-        for artifact in artifacts:
-            if not all(k in artifact for k in ("name", "type", "blob")):
-                raise ValueError(
-                    "Artifact missing properties: {}".format(artifact))
-            # Ensure every artifact has a ``job_guid`` value.
-            # It is legal to submit an artifact that doesn't have a
-            # ``job_guid`` value.  But, if missing, it should inherit that
-            # value from the job itself.
-            if "job_guid" not in artifact:
-                artifact["job_guid"] = job_guid
-        # TODO remove
-        store_job_artifacts(artifacts)
-
     log_refs = job_datum.get('log_references', [])
     job_logs = []
     if log_refs:
@@ -297,21 +273,14 @@ def _load_job(repository, job_datum, push_id):
             url = log.get('url') or 'unknown'
             url = url[0:255]
 
-            # this indicates that a summary artifact was submitted with
-            # this job that corresponds to the buildbot_text log url.
-            # Therefore, the log does not need parsing.  So we should
-            # ensure that it's marked as already parsed.
-            if has_text_log_summary and name == 'buildbot_text':
-                parse_status = JobLog.PARSED
+            parse_status_map = dict([(k, v) for (v, k) in
+                                    JobLog.STATUSES])
+            mapped_status = parse_status_map.get(
+                log.get('parse_status'))
+            if mapped_status:
+                parse_status = mapped_status
             else:
-                parse_status_map = dict([(k, v) for (v, k) in
-                                         JobLog.STATUSES])
-                mapped_status = parse_status_map.get(
-                    log.get('parse_status'))
-                if mapped_status:
-                    parse_status = mapped_status
-                else:
-                    parse_status = JobLog.PENDING
+                parse_status = JobLog.PENDING
 
             jl, _ = JobLog.objects.get_or_create(
                 job=job, name=name, url=url, defaults={
@@ -412,13 +381,6 @@ def store_job_data(repository, originalData):
                         "name": "unittest"
                     }
                 ],
-                artifacts:[{
-                    type:" json | img | ...",
-                    name:"",
-                    log_urls:[
-                        ]
-                    blob:""
-                }],
             },
             "superseded": []
         },
