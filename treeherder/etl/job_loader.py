@@ -178,7 +178,7 @@ class JobLoader:
             log_references.append({
                 "name": logref["name"],
                 "url": logref["url"],
-                "parse_status": "parsed" if "steps" in logref else "pending"
+                "parse_status": "pending"
             })
         log_references.extend(self._get_errorsummary_log_references(job))
         return log_references
