@@ -77,7 +77,7 @@ def test_store_job_with_unparsed_log(test_repository, failure_classifications,
             'state': 'completed',
             'log_references': [{
                 'url': log_url,
-                'name': 'buildbot_text',
+                'name': 'builds-4h',
                 'parse_status': 'pending'
             }]
         }
@@ -123,7 +123,7 @@ def test_store_job_pending_to_completed_with_unparsed_log(test_repository, push_
             'state': 'completed',
             'log_references': [{
                 'url': log_url,
-                'name': 'buildbot_text',
+                'name': 'builds-4h',
                 'parse_status': 'pending'
             }]
         }
@@ -158,7 +158,7 @@ def test_store_job_with_parsed_log(test_repository, push_stored,
             'state': 'completed',
             'log_references': [{
                 'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'buildbot_text',
+                'name': 'builds-4h',
                 'parse_status': 'parsed'
             }]
         }
