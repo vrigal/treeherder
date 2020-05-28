@@ -143,7 +143,6 @@ def create(job_log, log_list):
         if action not in FailureLine.ACTION_LIST:
             newrelic.agent.record_custom_event("unsupported_failure_line_action", failure_line)
             logger.exception(ValueError(f'Unsupported FailureLine ACTION: {action}'))
-            return
     failure_lines = [
         create_failure_line(job_log, failure_line)
         for failure_line in log_list
