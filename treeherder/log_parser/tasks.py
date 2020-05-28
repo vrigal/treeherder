@@ -20,7 +20,7 @@ from . import failureline
 logger = logging.getLogger(__name__)
 
 
-@retryable_task(name='log-parser', max_retries=10)
+@retryable_task(name='log-parser', max_retries=3)
 def parse_logs(job_id, job_log_ids, priority):
     newrelic.agent.add_custom_parameter("job_id", str(job_id))
 
