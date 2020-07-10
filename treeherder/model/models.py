@@ -1266,7 +1266,7 @@ class TextLogError(models.Model):
         unique_together = ('step', 'line_number')
 
     def __str__(self):
-        return "{0} {1}".format(self.id, self.step.job.id)
+        return "{0} {1}".format(self.id, self.job.id)
 
     @property
     def metadata(self):
