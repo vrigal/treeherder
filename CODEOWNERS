@@ -5,6 +5,7 @@
 /app.json                   @armenzg
 /docker-compose.yml         @armenzg
 /docker/**                  @armenzg
+/package.json               @armenzg
 management/commands/**      @armenzg
 ui/helpers/constants.js     @mozilla/treeherder-admins
 repository.json             @mozilla/treeherder-admins
