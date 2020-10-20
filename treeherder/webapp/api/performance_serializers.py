@@ -283,6 +283,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     signature = serializers.CharField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
     all_data = serializers.BooleanField(required=False, default=False)
+    no_retriggers = serializers.BooleanField(required=False, default=False)
 
     def validate(self, data):
         if (
