@@ -916,3 +916,6 @@ zstandard==0.14.0 \
 # WARNING: The following packages were not pinned, but pip requires them to be
 # pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
 # setuptools
+importlib-metadata==3.7.0 \
+    --hash=sha256:24499ffde1b80be08284100393955842be4a59c7c16bbf2738aad0e464a8e0aa \
+    --hash=sha256:c6af5dbf1126cd959c4a8d8efd61d4d3c83bddb0459a17e554284a077574b614
