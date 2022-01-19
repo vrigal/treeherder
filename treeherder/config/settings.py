@@ -265,6 +265,8 @@ if SITE_URL.startswith('https://'):
     # Mark session and CSRF cookies as being HTTPS-only.
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SAMESITE = 'None'
 
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Set the `X-Content-Type-Options` header to `nosniff`.
 SECURE_BROWSER_XSS_FILTER = True  # Sets the `X-XSS-Protection` header.
